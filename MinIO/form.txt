@@ -1,0 +1,333 @@
+import * as React from 'react';
+import { SampleBase } from './sample-base';
+import { UploaderComponent } from '@syncfusion/ej2-react-inputs';
+import { FormValidator } from '@syncfusion/ej2-inputs';
+import { DialogComponent } from '@syncfusion/ej2-react-popups';
+import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
+import './FileManager.css';
+import './index.css';
+import axios from 'axios';
+export default class Formsupport extends SampleBase {
+    formValidator;
+    uploadObj;
+    dialogInstance;
+    formObject;
+    animationSettings;
+    autoUpload;
+    allowedExtensions;
+    multiple;
+    inputElement;
+    inputRef;
+    inputRefElement;
+    constructor(props) {
+        super(props);
+        this.state = {
+            fileType:"",
+            selected:"",
+            selectedFile:null,
+          };
+          this.handleInputChange = this.handleInputChange.bind(this);
+        this.inputRefElement = null;
+        this.inputRef = element => {
+            this.inputRefElement = element;
+        };
+        this.animationSettings = { effect: 'Zoom' };
+        this.autoUpload = false;
+     //   this.allowedExtensions = 'image/*';
+        this.multiple = false;
+    }
+
+    submitHandler(event,select) {
+            event.preventDefault();
+            console.log(select);
+            //console.log(this.state.selectedFile);
+            //console.log(event.target.files[0]);
+            //console.log(event.target.LegalType.value);
+
+            // let form =document.getElementById("formTemp");
+            // let formData = new FormData(form);
+            // let data=([...formData]);
+            // console.log(data);
+            return (
+                select==="Legal Document"?(
+                //console.log(event.target.LegalType.value)
+                axios.post("/minio/upload",  
+                 { File:this.state.selectedFile,data:{type_of_legal_doc:event.target.type_of_legal_doc.value}},
+                //data,
+                   { headers: 
+                    { 'Content-Type':'application/json', Authorization : 'Bearer '+ this.props.token, username:this.props.username, docType:select, filepath:'Files/'
+                    }
+                   } 
+            ).then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            ):select==="Contract"?(
+                //console.log(event.target.files[0])
+                axios.post("/minio/upload",
+                   {File:this.state.selectedFile, data:{type_of_contract:event.target.type_of_contract.value, date:event.target.date.value, validity_in_months:event.target.validity_in_months.value }}, 
+                //data,  
+                { headers: 
+                    { 'Content-Type':'application/json', Authorization : 'Bearer '+ this.props.token, username:this.props.username, docType:select, filepath:'Files/'
+                    }
+                   } 
+            ).then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+                 //console.log(event.target.upload.value)
+            ):select==="Music"?(
+                //console.log(event.target.LegalType.value)
+                axios.post("/minio/upload",  
+                 {File:this.state.selectedFile,data:{ songTitle:event.target.songTitle.value, artist:event.target.artist.value, genre:event.target.genre.value}},
+                //data,
+                { headers: 
+                    { 'Content-Type':'application/json', Authorization : 'Bearer '+ this.props.token, username:this.props.username, docType:select, filepath:'Files/'
+                    }
+                   } 
+            ).then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            ):select==="Video"?(
+                //console.log(event.target.LegalType.value)
+                axios.post("/minio/upload",
+                {File:this.state.selectedFile, data:{video_title:event.target.video_title.value, genre:event.target.genre.value }}, 
+                //data, 
+                { headers: 
+                    { 'Content-Type':'application/json', Authorization : 'Bearer '+ this.props.token, username:this.props.username, docType:select, filepath:'Files/'
+                    }
+                   } 
+            ).then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            ):select==="Invoice"?(
+                //console.log(event.target.LegalType.value)
+                axios.post("/minio/upload",  
+                {File:this.state.selectedFile, data:{invoice_no:event.target.invoice_no.value, type_of_invoice:event.target.type_of_invoice.value }}, 
+                //data,
+                { headers: 
+                    { 'Content-Type':'application/json', Authorization : 'Bearer '+ this.props.token, username:this.props.username, docType:select, filepath:'Files/'
+                    }
+                   } 
+            ).then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            ):null
+            )
+           
+        }
+
+    // Uploader component
+    rendereComplete() {
+        let input = document.querySelectorAll('.e-input-group .e-input,.e-float-input.e-input-group input');
+        let inputIcon = document.querySelectorAll('.e-input-group-icon');
+        for (let i = 0; i < input.length; i++) {
+            { /* Focus Event binding Floating input label */ }
+            input[i].addEventListener('focus', () => {
+                getParentNode(input[i]).classList.add('e-input-focus');
+            });
+            { /* FocusOut Event binding Floating input label */ }
+            input[i].addEventListener('blur', () => {
+                getParentNode(input[i]).classList.remove('e-input-focus');
+            });
+        }
+        for (let i = 0; i < inputIcon.length; i++) {
+            { /* Mousedown Event binding for input icon Ripple Effect */ }
+            inputIcon[i].addEventListener('mousedown', function () {
+                this.classList.add('e-input-btn-ripple');
+            });
+            { /* MouseUp Event binding for input icon Ripple Effect */ }
+            inputIcon[i].addEventListener('mouseup', function () {
+                let ele = this;
+                setTimeout(() => { ele.classList.remove('e-input-btn-ripple'); }, 500);
+            });
+        }
+        function getParentNode(element) {
+            let parentNode = element.parentNode;
+            if (parentNode.classList.contains('e-input-in-wrap')) {
+                return parentNode.parentNode;
+            }
+            return parentNode;
+        }
+        document.getElementById('browse').onclick = () => {
+            document.getElementsByClassName('e-file-select-wrap')[0].querySelector('button').click();
+            return false;
+        };
+        // this.formValidator = {
+        //     // Defines the validation rules
+        //     rules: {
+        //         'name': {
+        //             required: [true, '* Enter your name']
+        //         },
+        //         'email': {
+        //             required: [true, '* Please enter valid email']
+        //         },
+        //         'upload': {
+        //             required: [true, '* Select any file']
+        //         },
+        //         'mobile': {
+        //             required: [true, '* Enter your mobile number']
+        //         }
+        //     }
+        // };
+        // this.formObject = new FormValidator('#formTemp', this.formValidator);
+    }
+    ;
+    // onSubmitClick(event) {
+    //     // if (this.formObject.validate()) {
+    //     //     this.formObject.element.reset();
+    //     //     this.dialogInstance.show();
+    //     // }
+    //     event.preventDefault();
+    //     console.log(event.target.LegalType)
+        
+    //         // return (
+    //         //     this.state.selected==="Legal Document"?(
+    //         //     console.log(event.target.LegalType.value)
+    //         //         //axios.post("https://localhost:8000/",{LegalType:event.target.LegalType.value})
+    //         // ):null
+    //         // );
+    // }
+
+
+    handleInputChange(event) {
+        this.setState({
+            selectedFile: event.target.files[0],
+          })
+        // console.log("kk");
+        // console.log(event.target.files);
+        // console.log(event.target.files[0]);
+
+    }
+    onFileSelected(args) {
+        this.inputElement = this.inputRefElement;
+        this.inputElement.value = args.filesData[0].name;
+        this.inputElement.classList.remove('e-error');
+        this.inputElement.classList.remove('e-valid');
+        this.inputElement.removeAttribute('aria-invalid');
+        this.inputElement.setAttribute('aria-invalid', 'false');
+    }
+
+    fileData= [
+        { Id: '.doc,.pdf', Name: 'Invoice' },
+        { Id: '.application/*', Name: 'Legal Document' },
+        { Id: 'audio/*', Name: 'Music' },
+        { Id: '.pdf', Name: 'Contract'},
+        { Id: '.mp4', Name: 'Video'}
+    ];
+    
+    // maps the appropriate column to fields property
+    fields = { text: 'Name' };
+
+
+    render() {
+        return (<div className='control-pane'>
+			<div className='control-section col-lg-12 uploadpreview'>
+                    <div className="control_wrapper uploader-form" id="control_wrapper">
+                        
+                        <DropDownListComponent id="ddlelement" fields={this.fields} dataSource={this.fileData}  placeholder="Select a file" onChange={(e)=> this.setState({ fileType: e.target.value, selected:e.target.text   }  )   } />
+                        <form id="formTemp" method="post" onSubmit={(e)=>this.submitHandler(e,this.state.selected)}>
+                            <div className="form-group">
+                                <div className="e-float-input">
+
+                                 {
+                                    this.state.selected==="Legal Document"? (
+                                    <div className="Legal Document">
+                                    <label>Type of Legal Document</label>
+                                    <input type="Text" name="type_of_legal_doc"/>
+                                    <br/>
+                                    </div>)  : this.state.selected==="Contract"? (
+                                    <div>
+                                    <label>Type of Contract</label>
+                                    <input type="Text" name="type_of_contract"/>
+                                    <br/>
+                                    
+                                    <label>Date of Contract</label>
+                                    <input type="Date" name="date"/>
+                                    <br/>
+                                    <label>Contract Validity (in months)</label>
+                                    <input type="Number" name="validity_in_months"/>
+                                    <br/>
+                                    </div>) : this.state.selected==="Music" ? (
+                                        <div>
+                                        <label>Song Title</label>
+                                        <input type="Text" name="songTitle"/>
+                                        <br/>
+                                        <label>Artist Name</label>
+                                        <input type="Text" name="artist"/>
+                                        <br/>
+                                        <label>Genre</label>
+                                        <input type="Text" name="genre"/>
+                                        <br/>
+                                        </div>
+                                    ) : this.state.selected==="Video" ? (
+                                        <div>
+                                        <label>Video title</label>
+                                        <input type="Text" name="video_title"/>
+                                        <br/>
+                                        <label>Genre</label>
+                                        <input type="Text" name="genre"/>
+                                        <br/>
+                                        </div>
+                                    ) : this.state.selected==="Invoice" ? (
+                                        <div>
+                                        <label>Invoice No</label>
+                                        <input type="Number" name="invoice_no"/>
+                                        <br/>
+                                        
+                                        <label>Type of Invoice</label>
+                                        <input type="Text" name="type_of_invoice"/>
+                                        <br/>
+                                        </div>
+                                    ) :null
+                                 }
+
+
+
+
+                                </div>
+                            </div>
+
+
+
+
+
+                            <div className="form-group">
+                                <div className="e-float-input upload-area">
+                                    <input type="text" readOnly id="upload" ref={this.inputRef} data-msg-containerid="uploadError"/>
+                                    <button id="browse" className="e-control e-btn e-info">Browse...</button>
+                                    <span className="e-float-line"></span>
+                                    <label className="e-float-text e-label-top">Choose a file</label>
+                                </div>
+                                <div id="uploadError"></div>
+                                    <UploaderComponent id='fileUpload' name="file" type='file' ref={(scope) => { this.uploadObj = scope; }} 
+                                    onChange={(e)=>this.handleInputChange(e)}    
+                                    //onChange={(e)=> this.setState({ selectedFile: e.target.files}  )   }    
+                                     selected={this.onFileSelected.bind(this)} 
+                                     //autoUpload={this.autoUpload}  
+                                    multiple={this.multiple}></UploaderComponent>
+                            </div>
+                            <div className="submitBtn">
+                                <button className="submit-btn e-btn" type="submit" id="submit-btn" >Submit</button>
+                                                     
+                            </div>                
+                        </form>
+                    </div>
+                    <DialogComponent id="defaultdialog" isModal={true} header='Success' showCloseIcon={true} visible={false} content='Your details have been updated successfully, Thank you.' animationSettings={this.animationSettings} width={'50%'} ref={dialog => this.dialogInstance = dialog} target={'.control-section'}></DialogComponent>
+            </div>
+      </div>);
+    }
+}

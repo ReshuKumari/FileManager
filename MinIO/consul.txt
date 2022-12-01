@@ -1,0 +1,101 @@
+consul agent -server -bootstrap-expect=1 -data-dir=consul-data -ui -bind=192.168.0.10
+
+2q7SjBCdHIofFzNtMLRhmpZpUD3DOLTl
+
+minio server --address :9001 /MusicMinio
+byL8CSw1lOipHstx6iv4vhI5jHTZpYsh
+
+
+mc admin config set myminio identity_openid config_url="http://localhost:8080/realms/Musicapp_keycloak/.well-known/openid-configuration" client_id="account" client_secret="HQvXRJ8lYBhbKOas4kVF52xCMk35YAxS"
+
+
+	<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-consul-discovery</artifactId>
+		</dependency>
+
+
+"myminio": {
+			"url": "http://192.168.0.14:9001",
+			"accessKey": "minioadmin",
+			"secretKey": "minioadmin",
+			"api": "s3v4",
+			"path": "auto"
+		},
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "*"
+                ]
+            },
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:ListBucketMultipartUploads"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mymusic"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "*"
+                ]
+            },
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mymusic"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "s3:prefix": [
+                        "readwrite"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "*"
+                ]
+            },
+            "Action": [
+                "s3:AbortMultipartUpload",
+                "s3:DeleteObject",
+                "s3:GetObject",
+                "s3:ListMultipartUploadParts",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mymusic/readwrite*"
+            ]
+        }
+    ]
+}
+
+
+
+
+
+	        
+
+/test/folder/
+[test,folder]
+
+
+
+
+
+
+
+

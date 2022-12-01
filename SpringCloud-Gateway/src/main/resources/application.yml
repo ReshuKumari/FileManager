@@ -1,0 +1,70 @@
+server:
+  port: 8000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  application: 
+    name: gateway
+  cloud:
+#    consul:
+#      enabled: true
+#      discovery:
+#          healthCheckPath : gateway/ManagementEndPoints/health
+#          instance-id : gateway
+#          hostname : gateway 
+#          healthCheckInterval : 5s
+#          scheme : http
+#          port : 8500
+    gateway:
+      default-filters:
+        - TokenRelay
+      routes:
+#        - id: MUSIC-SERVICE
+#          uri: http://localhost:8180/
+#          predicates:
+#            - Path=/api/**
+        - id: FILEMANAGER_MINIO
+          uri: http://localhost:9300/
+          predicates:
+            - Path=/minio/**
+        - id: FILEMANAGER_MONGO
+          uri: http://localhost:8081/
+          predicates:
+            - Path=/mongo/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: '*'
+            allowedHeaders: "*"
+            allowedMethods: "*"
+      
+      
+#   spring.cloud.consul.discovery.healthCheckPath=${spring.application.name}/ManagementEndPoints/health
+#spring.cloud.consul.discovery.healthCheckInterval=5s
+#spring.cloud.consul.discovery.instance-id=${spring.application.name}
+#spring.cloud.consul.discovery.scheme=http or https
+#spring.cloud.consul.discovery.hostname=${spring.application.name}
+#spring.cloud.consul.discovery.port=${server.port}
+  security:
+    oauth2:
+      client:
+        provider:
+          my-keycloak-provider:
+            issuer-uri: http://localhost:8080/realms/realm1
+        registration:
+          keycloak-spring-gateway-client:
+            provider: my-keycloak-provider
+            client-id: account_backend
+            client-secret: 6mM7FvRfbOxctjxjs87keyhVKNC5hWAx
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/realm1/protocol/openid-connect/certs
+          
+#            client-id: music-keycloak
+#            client-secret: Up6kyt9I31p0DlmkVZAIsusLe1MUj1FY
